@@ -2,6 +2,8 @@
   package="com.reactnativeinappsample">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!--결제 권한-->
+    <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
       android:name=".MainApplication"
