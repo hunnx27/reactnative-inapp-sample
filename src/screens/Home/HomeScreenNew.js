@@ -4,7 +4,7 @@ import Button from '../../lib/components/Button';
 import customInappGroupFunc from '../../lib_new/customInapp.js';
 
 const HomeScreenNew = () => {
-  const {useShoppingState, getItems, requestItemPurchase} = customInappGroupFunc();
+  const {useShoppingState, getItems, requestItemPurchase, consumeAllItemsAndroid } = customInappGroupFunc();
   
   console.log('init! hello!');
   return (
@@ -17,6 +17,8 @@ const HomeScreenNew = () => {
       <Button title="useStoreState(스토어커넥션연결)" handlePress={useShoppingState} />
       <Button title="getItems(단건상품가져오기)" handlePress={getItems} />
       <Button title="requestItemPurchase(단건상품결제하기)" handlePress={requestItemPurchase} />
+      <Button title="consumeAllItemsAndroid(단품상품초기화?)" handlePress={consumeAllItemsAndroid} />
+      
       
     </View>
   );

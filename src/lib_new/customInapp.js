@@ -62,7 +62,8 @@ const customInappGroupFunc = () => {
               if (receipt) {
                 try {
                   setLoading(false);
-                  const ackResult = await finishTransaction(purchase);
+                  const isConsumable = true
+                  const ackResult = await finishTransaction(purchase, isConsumable);
                   
                   // 구매이력 저장 및 상태 갱신
                   if (purchase) {
@@ -139,6 +140,21 @@ const customInappGroupFunc = () => {
       Alert.alert(error.message);
     }
   }
+
+  const consumeAllItemsAndroid = async() =>{
+    console.log('consumeAllItemsAndroid');
+    try{
+      const purchases = await RNIap.getAvailablePurchases();
+      purchases.forEach(async purchase => {
+        console.log(purchase.purchaseToken);
+        const isConsumable = true
+        const ackResult = await finishTransaction(purchase, isConsumable);
+        console.log(ackResult);
+      })
+    }catch(error){
+      console.log('consumeAllItemsAndroid: ', error);
+    }
+  }
   
   /** @Deprecated 구독함수 사용하지 않음 */
   const getSubscriptions = async () => {
@@ -164,10 +180,13 @@ const customInappGroupFunc = () => {
 
   
 
+  
+
   return{
     useShoppingState,
     requestItemPurchase,
-    getItems
+    getItems,
+    consumeAllItemsAndroid
   }
 }
 
