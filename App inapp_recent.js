@@ -126,7 +126,7 @@ function Intro() {
     try {
       const result = await RNIap.initConnection();
       
-      //await RNIap.consumeAllItemsAndroid();
+      await RNIap.consumeAllItemsAndroid();
       console.log('result', result);
     } catch (err) {
       Alert.alert(err.code, err.message);

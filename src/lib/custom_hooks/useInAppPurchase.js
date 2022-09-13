@@ -35,6 +35,7 @@ const useInAppPurchase = () => {
   console.log('1[6] : ' + currentPurchaseError);
 
   // Get data after initial render
+  // 처음 렌더링시 Init 함수() :
   useEffect(() => {
     console.log('# USEEFFECT 1');
     getBooleanData(IS_FULL_APP_PURCHASED).then((data) => {
@@ -44,6 +45,7 @@ const useInAppPurchase = () => {
   }, []);
 
   // Get products from play store.
+  // Init : 스토어에서 상품 불러오기
   useEffect(() => {
     console.log('# USEEFFECT 2');
     console.log('Connect : ' + connected);
@@ -56,6 +58,7 @@ const useInAppPurchase = () => {
   }, [connected, getProducts]);
 
   // currentPurchase will change when the requestPurchase function is called. The purchase then needs to be checked and the purchase acknowledged so Google knows we have awared the user the in-app product.
+  // 결제가 정상인지 확인
   useEffect(() => {
     console.log('# USEEFFECT 3');
     const checkCurrentPurchase = async (purchase) => {
@@ -79,6 +82,7 @@ const useInAppPurchase = () => {
   }, [currentPurchase, finishTransaction]);
 
   // If user reinstalls app, then they can press purchase btn (SettingsScreen)  to getfull app without paying again.
+  // 현재 결제 오류가 있는 경우
   useEffect(() => {
     console.log('# USEEFFECT 4');
     if (currentPurchaseError) {
@@ -91,8 +95,10 @@ const useInAppPurchase = () => {
     }
   }, [currentPurchaseError]);
 
+  // 결제하기
   const purchaseFullApp = async () => {
     // Reset error msg
+    console.log('hello');
     debugger;
     if (connectionErrorMsg !== '') setConnectionErrorMsg('');
     if (!connected) {

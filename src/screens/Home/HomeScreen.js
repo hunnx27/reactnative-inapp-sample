@@ -16,9 +16,10 @@ const HomeScreen = () => {
       ) : null}
       <Button title="Purchase" handlePress={purchaseFullApp} />
       <Text>Error Message &gt;&gt;</Text>
-      {connectionErrorMsg ? (
-        <Text style={{...styles.msg, color: 'red'}}>{connectionErrorMsg}</Text>
-      ) : null}
+      <Text style={{...styles.msg, color: 'red'}}>{connectionErrorMsg}</Text>
+      <Text>isFullAppPurchased &gt;&gt;</Text>
+      <Text style={{...styles.msg, color: 'red'}}>{isFullAppPurchased}</Text>
+      
     </View>
   );
 };
