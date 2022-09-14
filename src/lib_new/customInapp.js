@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
-import RNIap, {InAppPurchase, PurchaseError, finishTransaction} from 'react-native-iap';
+import RNIap, {InAppPurchase, PurchaseError, finishTransaction, useIAP} from 'react-native-iap';
 import { Platform, Alert } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 const customInappGroupFunc = () => {
@@ -8,6 +9,65 @@ const customInappGroupFunc = () => {
   let purchaseErrorSubscription;
   const [loading, setLoading] = useState(false);
   console.log(loading);
+
+  const {
+    // connected,
+    // products,
+    // promotedProductsIOS,
+    // subscriptions,
+    // purchaseHistories,
+    // availablePurchases,
+    currentPurchase,
+    // currentPurchaseError,
+    // initConnectionError,
+    //finishTransaction,
+    // getProducts,
+    // getSubscriptions,
+    //getAvailablePurchases,
+    // getPurchaseHistories,
+  } = useIAP();
+  
+  const log = () => {
+    // console.log('connected: ' + connected);
+    // console.log('products: ' + products);
+    // console.log('promotedProductsIOS: ' + promotedProductsIOS);
+    // console.log('subscriptions: ' + subscriptions);
+    // console.log('purchaseHistories: ' + purchaseHistories);
+    // console.log('availablePurchases: ' + availablePurchases);
+    
+    console.log(currentPurchase);
+    if(false){
+      console.log('productId: ' + currentPurchase.productId);
+      console.log('transactionId: ' + currentPurchase.transactionId);
+      console.log('transactionDate: ' + currentPurchase.transactionDate);
+      console.log('transactionReceipt: ' + currentPurchase.transactionReceipt);
+      console.log('purchaseToken: ' + currentPurchase.purchaseToken);
+      console.log('quantityIOS: ' + currentPurchase.quantityIOS);
+      console.log('originalTransactionDateIOS: ' + currentPurchase.originalTransactionDateIOS);
+      console.log('originalTransactionIdentifierIOS: ' + currentPurchase.originalTransactionIdentifierIOS);
+      console.log('dataAndroid: ' + currentPurchase.dataAndroid);
+      console.log('signatureAndroid: ' + currentPurchase.signatureAndroid);
+      console.log('autoRenewingAndroid: ' + currentPurchase.autoRenewingAndroid);
+      console.log('purchaseStateAndroid: ' + currentPurchase.purchaseStateAndroid);
+      console.log('isAcknowledgedAndroid: ' + currentPurchase.isAcknowledgedAndroid);
+      console.log('packageNameAndroid: ' + currentPurchase.packageNameAndroid);
+      console.log('developerPayloadAndroid: ' + currentPurchase.developerPayloadAndroid);
+      console.log('obfuscatedAccountIdAndroid: ' + currentPurchase.obfuscatedAccountIdAndroid);
+      console.log('obfuscatedProfileIdAndroid: ' + currentPurchase.obfuscatedProfileIdAndroid);
+      console.log('userIdAmazon: ' + currentPurchase.userIdAmazon);
+      console.log('userMarketplaceAmazon: ' + currentPurchase.userMarketplaceAmazon);
+      console.log('userJsonAmazon: ' + currentPurchase.userJsonAmazon);
+      console.log('isCanceledAmazon: ' + currentPurchase.isCanceledAmazon);
+    }
+    
+    // console.log('currentPurchaseError: ' + currentPurchaseError);
+    // console.log('initConnectionError: ' + initConnectionError);
+    //console.log('finishTransaction: ' + finishTransaction);
+    // console.log('getProducts: ' + getProducts);
+    // console.log('getSubscriptions: ' + getSubscriptions);
+    // console.log('getAvailablePurchases: ' + getAvailablePurchases);
+    // console.log('getPurchaseHistories: ' + getPurchaseHistories);
+  }
 
   // 단건 상품
   const itemSkus = Platform.select({
@@ -63,6 +123,8 @@ const customInappGroupFunc = () => {
                 try {
                   setLoading(false);
                   const isConsumable = true
+
+
                   const ackResult = await finishTransaction(purchase, isConsumable);
                   
                   // 구매이력 저장 및 상태 갱신
@@ -75,7 +137,6 @@ const customInappGroupFunc = () => {
               }
             }
           );
-  
 
           // 결제 오류시 리스너
           purchaseErrorSubscription = purchaseErrorListener((error) => {
@@ -95,15 +156,17 @@ const customInappGroupFunc = () => {
         }
       }
       connection();
+      console.log(purchaseUpdateSubscription);
+      console.log(purchaseErrorSubscription);
 
       return () => {
         if (purchaseUpdateSubscription) {
-          purchaseUpdateSubscription.remove();
-          purchaseUpdateSubscription = null;
+          //purchaseUpdateSubscription.remove();
+          //purchaseUpdateSubscription = null;
         }
         if (purchaseErrorSubscription) {
-          purchaseErrorSubscription.remove();
-          purchaseErrorSubscription = null;
+          //purchaseErrorSubscription.remove();
+          //purchaseErrorSubscription = null;
         }
         RNIap.endConnection();
       }
@@ -178,6 +241,89 @@ const customInappGroupFunc = () => {
     }  
   }
 
+  /**
+   * 안드로이드 검증
+   */ 
+  const checkReceiptAndroid = async () => {
+    let isValidated = false;
+    const receipt = await AsyncStorage.getItem('receipt');
+    if (receipt) {
+      try {
+        const purchases = await RNIap.getAvailablePurchases();
+        console.debug('checkReceiptAndroid');
+        let receipt = purchases[0].transactionReceipt;
+        if (Platform.OS === 'android' && purchases[0].purchaseToken) {
+          receipt = purchases[0].purchaseToken;
+        }
+        AsyncStorage.setItem('receipt', receipt);
+        isValidated = true;
+      } catch (error) {
+        isValidated = false;
+        AsyncStorage.removeItem('receipt');
+      }
+    }
+    return isValidated;
+  };
+
+  
+  /**
+   * 아이폰 검증
+   */
+  const checkReceiptIOS = async () => {
+    let isValidated = false;
+    const receipt = await AsyncStorage.getItem('receipt');
+    if (receipt) {
+      const newReceipt = await getReceiptIOS();
+      const validated = await validateReceiptIos(
+        {
+          'receipt-data': newReceipt,
+          password: '****************',
+        },
+        __DEV__,
+      );
+  
+      if (validated !== false && validated.status === 0) {
+        isValidated = true;
+        AsyncStorage.setItem('receipt', newReceipt);
+      } else {
+        isValidated = false;
+        AsyncStorage.removeItem('receipt');
+      }
+    }
+    return isValidated;
+  };
+
+  /** 
+   * 복원
+  */
+  const _restorePurchases = () => {
+    setShowLoading(true);
+    RNIap.getAvailablePurchases()
+      .then((purchases) => {
+        console.debug('restorePurchases');
+        let receipt = purchases[0].transactionReceipt;
+        if (Platform.OS === 'android' && purchases[0].purchaseToken) {
+          receipt = purchases[0].purchaseToken;
+        }
+        AsyncStorage.setItem('receipt', receipt);
+        setShowLoading(false);
+        setIsSubscription(true);
+        Alert.alert(
+          ENV.language['restore successful'],
+          ENV.language['you have successfully restored your purchase history'],
+          [{ text: ENV.language['ok'], onPress: () => actionSheetRef.current?.close() }],
+        );
+      })
+      .catch((err) => {
+        console.debug('restorePurchases');
+        console.error(err);
+        setShowLoading(false);
+        setIsSubscription(false);
+        AsyncStorage.removeItem('receipt');
+        Alert.alert(ENV.language['restore failed'], ENV.language['restore failed reason']);
+      });
+  };
+
   
 
   
@@ -186,7 +332,11 @@ const customInappGroupFunc = () => {
     useShoppingState,
     requestItemPurchase,
     getItems,
-    consumeAllItemsAndroid
+    consumeAllItemsAndroid,
+    log,
+    checkReceiptAndroid,
+    checkReceiptIOS,
+    _restorePurchases
   }
 }
 

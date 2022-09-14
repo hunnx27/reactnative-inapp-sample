@@ -10,11 +10,12 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.17.7",
+    "@react-native-community/async-storage": "^1.12.1",
     "apsl-react-native-button": "^3.1.1",
     "react": "17.0.2",
     "react-native": "0.68.2",
     "react-native-iap": "^8.2.1",
+    "react-native-webview": "^11.23.1",
     "react-navigation": "^4.4.4"
   },
   "devDependencies": {
