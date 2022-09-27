@@ -18,7 +18,7 @@ const customInappGroupFunc = () => {
     // purchaseHistories,
     // availablePurchases,
     currentPurchase,
-    // currentPurchaseError,
+    currentPurchaseError,
     // initConnectionError,
     //finishTransaction,
     // getProducts,
@@ -177,16 +177,17 @@ const customInappGroupFunc = () => {
      * 상품 가져오기 함수
      */
    const getItems = async () => {
-    console.log('getItems');
     try {
       const items = await RNIap.getProducts(itemSkus);
       // items 저장
-      console.log('# item 목록 조회');
-      console.log('{');
-      console.log(items)
-      console.log('}');
+      // console.log('# item 목록 조회');
+      // console.log('{');
+      // console.log(items)
+      // console.log('}');
+      return items;
     } catch(error) {
       console.log('get item error: ', error);
+      return error;
     }
   }
 
@@ -197,10 +198,13 @@ const customInappGroupFunc = () => {
     console.log('requestItemPurchase');
     try {
       sku = 'point_1'
-      RNIap.requestPurchase(sku);
+      const rs = await RNIap.requestPurchase(sku);
+      //console.log(rs);
+      return rs;
     } catch(error) {
       console.log('request purchase error: ', error);
       Alert.alert(error.message);
+      return error;
     }
   }
 
@@ -208,14 +212,19 @@ const customInappGroupFunc = () => {
     console.log('consumeAllItemsAndroid');
     try{
       const purchases = await RNIap.getAvailablePurchases();
-      purchases.forEach(async purchase => {
+      let ackResults = [];
+      for(purchase of purchases){
         console.log(purchase.purchaseToken);
         const isConsumable = true
         const ackResult = await finishTransaction(purchase, isConsumable);
+        console.log('##ackResult : ');
         console.log(ackResult);
-      })
+        ackResults.push(ackResult);
+      }
+      return ackResults;
     }catch(error){
       console.log('consumeAllItemsAndroid: ', error);
+      return error;
     }
   }
   
@@ -336,7 +345,8 @@ const customInappGroupFunc = () => {
     log,
     checkReceiptAndroid,
     checkReceiptIOS,
-    _restorePurchases
+    _restorePurchases,
+    currentPurchaseError,
   }
 }
 

@@ -8,7 +8,7 @@ const App = () => {
   let webviewRef = useRef();
 
   /** 웹뷰 ref */
-  const handleSetRef = _ref => {
+  const handleSetRef = (_ref) => {
     webviewRef = _ref;
   };
 
@@ -16,15 +16,14 @@ const App = () => {
   const handleEndLoading = e => {
     console.log("handleEndLoading");
     /** rn에서 웹뷰로 정보를 보내는 메소드 */
-    webviewRef.postMessage("로딩 완료시 webview로 정보를 보내는 곳");
+    webviewRef.current.postMessage("로딩 완료시 webview로 정보를 보내는 곳");
   };
-
 
   // return <HomeScreen />;
   return (
     <HomeScreenNew 
       webviewRef={webviewRef}
-      handleSetRef={handleSetRef}
+      handleSetRef={webviewRef}
       handleEndLoading={handleEndLoading}    
     />
   );
