@@ -251,7 +251,8 @@ const customInappGroupFunc = () => {
   }
 
   /**
-   * 안드로이드 검증
+   * @Deprecated 이 앱에서는 사용하지 않음
+   * 안드로이드 검증()
    */ 
   const checkReceiptAndroid = async () => {
     let isValidated = false;
@@ -276,6 +277,7 @@ const customInappGroupFunc = () => {
 
   
   /**
+   * @Deprecated 이 앱에서는 사용하지 않음
    * 아이폰 검증
    */
   const checkReceiptIOS = async () => {
