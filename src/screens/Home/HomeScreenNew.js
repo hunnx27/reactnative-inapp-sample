@@ -17,6 +17,7 @@ const HomeScreenNew = ({handleSetRef, handleEndLoading}) => {
     etc: "ETC"
   }
   let uri = 'http://192.168.150.171:5500/index.html';
+  uri = 'http://192.168.150.171:3000'
   //uri = 'https://coverdreamit.co.kr'
   const handleOnMessage = async ({nativeEvent: {data}}) => {
     // data에 웹뷰에서 보낸 값이 들어옵니다.
@@ -136,7 +137,9 @@ const HomeScreenNew = ({handleSetRef, handleEndLoading}) => {
   //    console.warn = console.log;
   //    console.error = console.log;
   //    `;
-  const debugging = `
+  let injectJavascript = "";
+  const zoominDisableScript = `const meta = document.createElement(\'meta\'); meta.setAttribute(\'content\', \'width=device-width, initial-scale=1, maximum-scale=0.99, user-scalable=0\'); meta.setAttribute(\'name\', \'viewport\'); document.getElementsByTagName(\'head\')[0].appendChild(meta);`
+  const debuggingScript = `
     //const consoleLog = (type, log) => window.ReactNativeWebView.postMessage(JSON.stringify({'type': 'Console', 'data': {'type': type, 'log': log}}));
     const consoleLog = (type, log) => window.ReactNativeWebView.postMessage(JSON.stringify({'log':log}));
     console = {
@@ -146,12 +149,14 @@ const HomeScreenNew = ({handleSetRef, handleEndLoading}) => {
         warn: (log) => consoleLog('warn', log),
         error: (log) => consoleLog('error', log),
       };
-`;
+  `;
+  injectJavascript += zoominDisableScript;
+  injectJavascript += debuggingScript;
 
   console.log('init! hello!');
   return (
     <View style={styles.container}>
-      <View style={{...styles.fixTotext, display:'flex'}}>
+      <View style={{...styles.fixTotext, display:'flex', display:'none'}}>
         {/* <View style={styles.item}><Button title="useStoreState(스토어커넥션연결)" handlePress={useShoppingState} /></View> */}
         <View style={styles.item}><Button title="getItems(단건상품가져오기)*" handlePress={getItems} /></View>
         <View style={styles.item}><Button title="requestItemPurchase(단건상품결제하기)" handlePress={requestItemPurchase} /></View>
@@ -163,8 +168,8 @@ const HomeScreenNew = ({handleSetRef, handleEndLoading}) => {
         onLoadEnd={handleEndLoading}
         onMessage={handleOnMessage}
         ref={handleSetRef}
-        source={{ uri }}
-        injectedJavaScript={debugging}
+        source={{ uri: uri }}
+        injectedJavaScript={injectJavascript}
       />
     </View>
   );
